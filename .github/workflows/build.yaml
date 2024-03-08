@@ -10,7 +10,7 @@ jobs:
     steps:
       - name: Check if version is bumped?
         run: |
-          if [[ ${{ github.event.head_commit.message }} == *"Bump version"* ]]; then
+          if [[ "${{ github.event.head_commit.message }}" == *"Bump version"* ]]; then
             echo "Version is bumped. Proceeding with the build."
           else
             echo "Version is not bumped. Exiting the build."
