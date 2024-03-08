@@ -1,3 +1,6 @@
 [build-system]
 requires = ["setuptools"]
 build-backend = "setuptools.build_meta"
+
+[dev-dependencies]
+bump2version = "*"
