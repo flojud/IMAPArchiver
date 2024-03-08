@@ -5,9 +5,18 @@ on: push
 # .github/workflows/ci-cd.yml
 jobs:
   pre-check:
-    name: Check if version is bumped
+    name: Pre-check before building distribution 📦
     runs-on: ubuntu-latest
     if: ${{ !contains(github.event.head_commit.message, 'Bump version') }}
+    steps:
+      - name: Check if version is bumped?
+        run: |
+          if [[ "${{ github.event.head_commit.message }}" =~ "\Bump version\*"" ]]; then
+            echo "This commit is not a version bump. Let's continue."
+          else
+            echo "This commit is a version bump. Let's stop the workflow."
+            exit 1
+          fi
 
   build:
     name: Build distribution 📦
