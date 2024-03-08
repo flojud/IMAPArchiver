@@ -31,12 +31,11 @@ jobs:
         run: |
           python3 -m pip install build --user
           python3 -m pip install --upgrade bumpversion
-      - name: Bump version
+      - name: Bump and push version
         run: |
           git config --global user.email "dev.flojud@gmail.com"
           git config --global user.name "GitHub Action"
           bump2version minor
-
       - name: Build a binary wheel and a source tarball
         run: python3 -m build
       - name: Store the distribution packages
@@ -44,6 +43,8 @@ jobs:
         with:
           name: python-package-distributions
           path: dist/
+      - name: Push the changes to the repository
+        run: git push && git push --tags
 
   publish-to-pypi:
     name: Publish Python 🐍 📦
