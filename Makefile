@@ -15,3 +15,6 @@ install:
 
 run:
 	$(PYTHON) main.py
+release:
+	bump2version minor
+	$(PYTHON) -m build
