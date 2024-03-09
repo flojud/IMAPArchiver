@@ -35,7 +35,7 @@ jobs:
         run: |
           git config --global user.email "dev.flojud@gmail.com"
           git config --global user.name "GitHub Action"
-          bump2version minor
+          bumpversion minor
       - name: Build a binary wheel and a source tarball
         run: python3 -m build
       - name: Store the distribution packages
