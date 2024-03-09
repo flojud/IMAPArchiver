@@ -43,8 +43,11 @@ jobs:
         with:
           name: python-package-distributions
           path: dist/
-      - name: Push the changes to the repository
-        run: git push && git push --tags
+      - name: Push changes
+        uses: ad-m/github-push-action@master
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          branch: ${{ github.ref }}
 
   publish-to-pypi:
     name: Publish Python 🐍 📦
