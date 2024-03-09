@@ -1,27 +1,8 @@
-import configparser
-import os
-
 from setuptools import find_packages, setup
-
-
-def get_version():
-    config = configparser.ConfigParser()
-
-    base_folder = os.path.dirname(os.path.abspath(__file__))
-    config_file = os.path.join(base_folder, ".bumpversion.cfg")
-    config.read(config_file)
-    current_version = config.get("bumpversion", "current_version")
-
-    print("Current working directory ", os.getcwd())
-    print("Reading version from ", config_file)
-    print("Current version ", current_version)
-
-    return current_version
-
 
 setup(
     name="IMAPArchiver",
-    version=get_version(),
+    version="0.1.0",
     packages=find_packages(),
     install_requires=[],
     author="flojud",
