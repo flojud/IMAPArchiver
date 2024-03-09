@@ -1,8 +1,10 @@
 name: Publish Python 🐍 distribution 📦 to PyPI and TestPyPI
 
 on: push
+env:
+  package-name: IMAPArchiver
+  python-version: 3.11
 
-# .github/workflows/ci-cd.yml
 jobs:
   pre-check:
     name: Pre-check before building distribution 📦
@@ -23,10 +25,12 @@ jobs:
     needs: pre-check
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
-          python-version: "3.11"
+          python-version: ${{ env.python-version }}
       - name: Install pypa/build
         run: |
           python3 -m pip install build --user
@@ -56,7 +60,7 @@ jobs:
     runs-on: ubuntu-latest
     environment:
       name: pypi
-      url: https://pypi.org/p/<package-name> # Replace <package-name> with your PyPI project name
+      url: https://pypi.org/p/${{env.package-name}}
     permissions:
       id-token: write # IMPORTANT: mandatory for trusted publishing
     steps:
@@ -112,7 +116,7 @@ jobs:
     runs-on: ubuntu-latest
     environment:
       name: testpypi
-      url: https://test.pypi.org/p/<package-name>
+      url: https://test.pypi.org/p/${{env.package-name}}
     permissions:
       id-token: write # IMPORTANT: mandatory for trusted publishing
     steps:
