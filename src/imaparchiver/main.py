@@ -1,67 +1,14 @@
-import imaplib
 import email
+import imaplib
 import os
-import argparse
-import time
 import re
 from datetime import datetime
 from email import message
 
+from EmailStats import EmailStats
+
 VERBOSE = False
 DEBUG = False
-
-
-class EmailStats:
-    """
-    A class to represent statistics related to email processing.
-
-    Attributes:
-    - total_folders (int): Total number of email folders processed.
-    - total_messages (int): Total number of messages processed.
-    - matched_year_messages (int): Number of messages matched with a specific year.
-    - start_time (float): Time when the statistics tracking started.
-    """
-
-    def __init__(self):
-        """
-        Initializes EmailStats with default values for attributes.
-        """
-        self.total_folders = 0
-        self.total_messages = 0
-        self.matched_year_messages = 0
-        self.start_time = time.time()
-
-    def increment_folders(self):
-        """
-        Increment the total_folders attribute by 1.
-        """
-        self.total_folders += 1
-
-    def increment_messages(self):
-        """
-        Increment the total_messages attribute by 1.
-        """
-        self.total_messages += 1
-
-    def increment_matched_year_messages(self):
-        """
-        Increment the matched_year_messages attribute by 1.
-        """
-        self.matched_year_messages += 1
-
-    def print_stats(self):
-        """
-        Print the statistics related to email processing, including total folders,
-        total messages, messages matched with a specific year, and elapsed time.
-        """
-        duration = time.time() - self.start_time
-        minutes, seconds = divmod(duration, 60)
-        hours, minutes = divmod(minutes, 60)
-        print("Total Folders:", self.total_folders)
-        print("Total Messages:", self.total_messages)
-        print("Messages Matched the Year:", self.matched_year_messages)
-        print("Elapsed time: {:02}:{:02}:{:02}".format(
-            int(hours), int(minutes), int(seconds)))
 
 
 def parse_date(date_str: any) -> str:
@@ -87,8 +34,7 @@ def parse_date(date_str: any) -> str:
         date_str = str(date_str)
     date_tuple = email.utils.parsedate(date_str)
     if not date_tuple:
-        print("Warning: Failed to parse date > " +
-              date_str + " < Skipping this email.")
+        print("Warning: Failed to parse date > " + date_str + " < Skipping this email.")
         return
     return datetime(*date_tuple[:6])
 
@@ -122,29 +68,52 @@ def sanitize_string(input_str: str) -> str:
     """
     input_str = input_str.strip()
     input_str = input_str.lower()
-    input_str = re.sub(r'[^a-z0-9\s@.]', '', input_str)
-    input_str = re.sub(r'\s+', ' ', input_str)
-    input_str = input_str.replace(' ', '-')
+    input_str = re.sub(r"[^a-z0-9\s@.]", "", input_str)
+    input_str = re.sub(r"\s+", " ", input_str)
+    input_str = input_str.replace(" ", "-")
 
-    if input_str.startswith('.'):
-        input_str = input_str.lstrip('.')
+    if input_str.startswith("."):
+        input_str = input_str.lstrip(".")
 
-    if input_str.endswith('.'):
-        input_str = input_str.rstrip('.')
+    if input_str.endswith("."):
+        input_str = input_str.rstrip(".")
 
-    if input_str.startswith(':'):
-        input_str = input_str.lstrip(':')
+    if input_str.startswith(":"):
+        input_str = input_str.lstrip(":")
 
-    invalid_chars = r'[\*:<>/\\|]'
-    input_str = re.sub(invalid_chars, '', input_str)
+    invalid_chars = r"[\*:<>/\\|]"
+    input_str = re.sub(invalid_chars, "", input_str)
 
-    invalid_names = ['.lock', 'CON', 'PRN', 'AUX', 'NUL',
-                     'COM0', 'COM1', 'COM2', 'COM3', 'COM4',
-                     'COM5', 'COM6', 'COM7', 'COM8', 'COM9',
-                     'LPT0', 'LPT1', 'LPT2', 'LPT3', 'LPT4',
-                     'LPT5', 'LPT6', 'LPT7', 'LPT8', 'LPT9',
-                     '_vti_', 'desktop.ini']
-    if input_str.startswith('~$') or input_str in invalid_names:
+    invalid_names = [
+        ".lock",
+        "CON",
+        "PRN",
+        "AUX",
+        "NUL",
+        "COM0",
+        "COM1",
+        "COM2",
+        "COM3",
+        "COM4",
+        "COM5",
+        "COM6",
+        "COM7",
+        "COM8",
+        "COM9",
+        "LPT0",
+        "LPT1",
+        "LPT2",
+        "LPT3",
+        "LPT4",
+        "LPT5",
+        "LPT6",
+        "LPT7",
+        "LPT8",
+        "LPT9",
+        "_vti_",
+        "desktop.ini",
+    ]
+    if input_str.startswith("~$") or input_str in invalid_names:
         return "no-name"
 
     max_char = 128
@@ -176,9 +145,8 @@ def parse_sender_email(sender: any) -> str:
     try:
         if isinstance(sender, email.header.Header):
             sender = str(sender)
-        sender_email_match = re.search(r'<([^>]+)>', sender)
-        sender_email = sender_email_match.group(
-            1) if sender_email_match else None
+        sender_email_match = re.search(r"<([^>]+)>", sender)
+        sender_email = sender_email_match.group(1) if sender_email_match else None
         sender_email = sanitize_string(sender_email)
     except KeyError:
         if DEBUG:
@@ -191,7 +159,9 @@ def parse_sender_email(sender: any) -> str:
     return sender_email
 
 
-def mkdir_email_folder(base_dir: str, date_obj: datetime, year_dir: str, email_dir: str):
+def mkdir_email_folder(
+    base_dir: str, date_obj: datetime, year_dir: str, email_dir: str
+):
     """
     Create a directory for storing emails based on the provided parameters.
 
@@ -270,10 +240,13 @@ def normalize_filename(filename: str) -> str:
     """
     if not filename:
         filename = "no-name"
-    if '.' in filename:
-        filename_parts = filename.split('.')
-        filename = '.'.join([sanitize_string(part)
-                            for part in filename_parts[:-1]]) + '.' + sanitize_string(filename_parts[-1])
+    if "." in filename:
+        filename_parts = filename.split(".")
+        filename = (
+            ".".join([sanitize_string(part) for part in filename_parts[:-1]])
+            + "."
+            + sanitize_string(filename_parts[-1])
+        )
     else:
         filename = sanitize_string(filename)
 
@@ -298,7 +271,7 @@ def save_message(raw_email: str, msg_path: str) -> None:
     save_message(raw_email_content, "/path/to/email.msg")
     ```
     """
-    with open(msg_path, 'wb') as f:
+    with open(msg_path, "wb") as f:
         f.write(raw_email)
 
 
@@ -323,12 +296,12 @@ def save_attachments(msg: message.EmailMessage, folder_path: str) -> None:
     ```
     """
     for part in msg.walk():
-        if part.get_content_maintype() == 'multipart':
+        if part.get_content_maintype() == "multipart":
             if DEBUG:
                 print(f"Warning: Attachment Part iy type multipart. Skipping.")
             continue
 
-        if part.get('Content-Disposition') is None:
+        if part.get("Content-Disposition") is None:
             if DEBUG:
                 print(f"Warning: Expected to be displayed inline. Skipping.")
             continue
@@ -339,18 +312,30 @@ def save_attachments(msg: message.EmailMessage, folder_path: str) -> None:
             attachment_path = os.path.join(folder_path, filename)
             payload = part.get_payload(decode=True)
             if payload is not None:
-                with open(attachment_path, 'wb') as f:
+                with open(attachment_path, "wb") as f:
                     f.write(payload)
             else:
                 if DEBUG:
                     print(
-                        f"Warning: Payload is None for attachment {filename}. Skipping.")
+                        f"Warning: Payload is None for attachment {filename}. Skipping."
+                    )
         else:
             if DEBUG:
                 print(f"Warning: Filename is None. Skipping.")
 
 
-def export_emails(imap_server: str, username: str, password: str, destination: str, year: int = None, use_ssl: bool = False, port: int = None, verbose: bool = False, debug: bool = False, skip: str = None):
+def export_emails(
+    imap_server: str,
+    username: str,
+    password: str,
+    destination: str,
+    year: int = None,
+    use_ssl: bool = False,
+    port: int = None,
+    verbose: bool = False,
+    debug: bool = False,
+    skip: str = None,
+):
     """
     Export emails from an IMAP server to the specified destination folder.
 
@@ -409,7 +394,7 @@ def export_emails(imap_server: str, username: str, password: str, destination: s
 
     result, _ = connection.select()
 
-    if result != 'OK':
+    if result != "OK":
         print(f"Warning: Failed to select mailbox. Error: {result}")
         connection.close()
         connection.logout()
@@ -420,84 +405,61 @@ def export_emails(imap_server: str, username: str, password: str, destination: s
     for folder_info in folders:
         stats.increment_folders()
 
-        _, folder_name = folder_info.decode('utf-8').split('" "')
+        _, folder_name = folder_info.decode("utf-8").split('" "')
         folder_name = folder_name.strip('"')
 
         if VERBOSE:
             print("Select folder: " + folder_name)
 
-        if folder_name in skip.split(','):
+        if folder_name in skip.split(","):
             continue
 
         connection.select(folder_name)
 
         try:
-            _, message_ids = connection.search(None, 'ALL')
+            _, message_ids = connection.search(None, "ALL")
         except imaplib.IMAP4.error as e:
             result, _ = connection.select()
 
-            if result != 'OK':
+            if result != "OK":
                 print(
-                    f"Warning: Failed to reselect mailbox after error. Error: {result}")
+                    f"Warning: Failed to reselect mailbox after error. Error: {result}"
+                )
                 continue
             else:
-                _, message_ids = connection.search(None, 'ALL')
+                _, message_ids = connection.search(None, "ALL")
 
         message_ids = message_ids[0].split()
 
         for message_id in message_ids:
             stats.increment_messages()
 
-            _, msg_data = connection.fetch(message_id, '(RFC822)')
+            _, msg_data = connection.fetch(message_id, "(RFC822)")
             raw_email = msg_data[0][1]
             msg = email.message_from_bytes(raw_email)
 
             try:
-                date_obj = parse_date(msg['Date'])
+                date_obj = parse_date(msg["Date"])
             except ValueError:
-                print("Warning: Failed to parse date > " +
-                      msg['Date']+" < Skipping this email.")
+                print(
+                    "Warning: Failed to parse date > "
+                    + msg["Date"]
+                    + " < Skipping this email."
+                )
                 exit(1)
 
             if date_obj and year and date_obj.year != year:
                 continue
 
             stats.increment_matched_year_messages()
-            sender_email = parse_sender_email(msg['From'])
+            sender_email = parse_sender_email(msg["From"])
             folder_path = mkdir_email_folder(
-                destination, date_obj, date_obj.year, sender_email)
-            subject = normalize_subject(msg['Subject'])
-            save_message(raw_email, os.path.join(
-                folder_path, f"{subject}.eml"))
+                destination, date_obj, date_obj.year, sender_email
+            )
+            subject = normalize_subject(msg["Subject"])
+            save_message(raw_email, os.path.join(folder_path, f"{subject}.eml"))
             save_attachments(msg, folder_path)
 
     connection.close()
     connection.logout()
     stats.print_stats()
-
-
-if __name__ == "__main__":
-    parser = argparse.ArgumentParser(
-        description='Export emails from an IMAP mailbox.')
-    parser.add_argument('--server', '-s', required=True,
-                        help='IMAP server address')
-    parser.add_argument('--user', '-u', required=True, help='Username')
-    parser.add_argument('--password', '-p', required=True, help='Password')
-    parser.add_argument('--destination', '-d',
-                        required=True, help='Export folder path')
-    parser.add_argument('--year', '-y', type=int,
-                        help='Optional: Year to filter emails')
-    parser.add_argument('--ssl', action='store_true',
-                        help='Optional: Use SSL connection')
-    parser.add_argument('--port', type=int, help='Optional: Port of server')
-    parser.add_argument('--skip',
-                        help='Optional: Comma seperated list of imap folders to skip')
-    parser.add_argument('--verbose',
-                        action='store_true', help='Verbose logging')
-    parser.add_argument('--debug',
-                        action='store_true', help='Print debug output')
-
-    args = parser.parse_args()
-
-    export_emails(args.server, args.user, args.password, args.destination,
-                  args.year, args.ssl, args.port, args.verbose, args.debug, args.skip)

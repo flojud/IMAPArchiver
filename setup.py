@@ -17,7 +17,7 @@ setup(
     },
     entry_points={
         "console_scripts": [
-            "imaparchiver = main:main",
+            "imaparchiver = imaparchiver:run",
         ],
     },
     python_requires=">=3.11",
