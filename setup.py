@@ -1,9 +1,9 @@
-from setuptools import find_packages, setup
+from setuptools import setup
 
 setup(
     name="IMAPArchiver",
     version="0.4.0",
-    packages=find_packages(),
+    packages=["imaparchiver"],
     install_requires=[],
     author="flojud",
     author_email="dev.flojud@gmail.com",
@@ -17,7 +17,7 @@ setup(
     },
     entry_points={
         "console_scripts": [
-            "imaparchiver = imaparchiver:run",
+            "imaparchiver = imaparchiver.main:run",
         ],
     },
     python_requires=">=3.11",
