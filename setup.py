@@ -1,9 +1,10 @@
-from setuptools import setup
+from setuptools import find_packages, setup
 
 setup(
     name="IMAPArchiver",
     version="0.5.0",
-    packages=["imaparchiver"],
+    packages=find_packages("src"),
+    package_dir={"": "src"},
     install_requires=[],
     author="flojud",
     author_email="dev.flojud@gmail.com",
