@@ -2,7 +2,7 @@ from setuptools import setup
 
 setup(
     name="IMAPArchiver",
-    version="0.4.0",
+    version="0.5.0",
     packages=["imaparchiver"],
     install_requires=[],
     author="flojud",
