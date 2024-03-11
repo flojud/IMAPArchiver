@@ -8,6 +8,8 @@ PIP = $(VENV_NAME)/bin/pip
 clean:
 	rm -rf $(VENV_NAME)
 	rm -rf __pycache__
+	rm -rf IMAPArchiver.egg-info/
+	rm -rf dist/
 
 install:
 	python3 -m venv $(VENV_NAME)
@@ -15,3 +17,6 @@ install:
 
 run:
 	$(PYTHON) main.py
+release:
+	bump2version minor
+	$(PYTHON) -m build
