@@ -25,7 +25,7 @@ jobs:
           python3 -m pip install --upgrade bumpversion
           git config --global user.email "dev.flojud@gmail.com"
           git config --global user.name "GitHub Action"
-          bumpversion ${{ env.bump }}
+          bumpversion ${{ inputs.bump }}
           python3 -m build
       - name: Store the distribution packages
         uses: actions/upload-artifact@v3
