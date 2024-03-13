@@ -2,7 +2,7 @@ from setuptools import find_packages, setup
 
 setup(
     name="IMAPArchiver",
-    version="0.9.0",
+    version="1.0.0",
     packages=find_packages("src"),
     package_dir={"": "src"},
     install_requires=[],
